@@ -3,29 +3,31 @@
 # Copyright and License are found in READ_COPYRIGHT and LPGL_LICENSE
 
 import RPi.GPIO as GPIO
-import MFRC522
+from MFRC522 import MFRC522
 import signal
 from Tassimo import Tassimo
 
 continue_reading = True
 tassimo = Tassimo()
 
+
 # Capture SIGINT for cleanup when the script is aborted
-def end_read(signal,frame):
+def end_read(signal, frame):
     global continue_reading
-    print "Ctrl+C captured, ending read."
+    print("Ctrl+C captured, ending read.")
     continue_reading = False
     GPIO.cleanup()
+
 
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
 
 # Create an object of the class MFRC522
-MIFAREReader = MFRC522.MFRC522()
+MIFAREReader = MFRC522.Reader(0, 0, 22)
 
 # Welcome message
-print ("Welcome to the RFID-Interface for SmartCoffee")
-print ("Press Ctrl-C to stop.")
+print("Welcome to the RFID-Interface for SmartCoffee")
+print("Press Ctrl-C to stop.")
 
 while continue_reading:
     # Scan for cards
@@ -33,8 +35,7 @@ while continue_reading:
 
     # If a card is found
     if status == MIFAREReader.MI_OK:
-        print
-        "Card detected"
+        print("Card detected")
 
         # Get the UID of the card
     (status, uid) = MIFAREReader.MFRC522_Anticoll()
@@ -43,7 +44,7 @@ while continue_reading:
     if status == MIFAREReader.MI_OK:
         tassimo.make_coffee()
         # Print UID
-        print ("Making coffee for UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+        print("Making coffee for UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
 
         # This is the default key for authentication
         key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]

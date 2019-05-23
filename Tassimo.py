@@ -1,13 +1,19 @@
 import RPi.GPIO as IO
 import time as time
 
-BARCODE_GPIO = 14
-COFFEE_GPIO = 15
+gpio_mode = IO.getmode()
+
+BARCODE_GPIO = 8
+COFFEE_GPIO = 10
 
 BARCODE_TO_COFFEE_TIME = 10
 
 IO.setwarnings(False)
-IO.setmode(IO.BCM)
+
+if gpio_mode == -1:
+    IO.setmode(IO.BOARD)
+
+
 IO.setup(COFFEE_GPIO, IO.OUT)
 IO.setup(BARCODE_GPIO, IO.OUT)
 
