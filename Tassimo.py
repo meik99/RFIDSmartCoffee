@@ -6,7 +6,7 @@ gpio_mode = IO.getmode()
 BARCODE_GPIO = 8
 COFFEE_GPIO = 10
 
-BARCODE_TO_COFFEE_TIME = 10
+BARCODE_TO_COFFEE_TIME = 3
 
 IO.setwarnings(False)
 
