@@ -1,63 +1,21 @@
-# Most parts of this file are taken from
-# https://github.com/mxgxw/MFRC522-python/blob/master/Read.py
-# Copyright and License are found in READ_COPYRIGHT and LPGL_LICENSE
+# Most parts of this code are taken from
+# https://pimylifeup.com/raspberry-pi-rfid-rc522/
+#!/usr/bin/env python
 
 import RPi.GPIO as GPIO
-from MFRC522 import MFRC522
-import signal
-from Tassimo import Tassimo
+from mfrc522 import SimpleMFRC522
 
-continue_reading = True
-tassimo = Tassimo()
+reader = SimpleMFRC522()
+is_reading = True
 
+try:
+        print("RFID-SmartCoffee started")
+        while is_reading is True:
+                from Tassimo import Tassimo
+                tassimo = Tassimo()
 
-# Capture SIGINT for cleanup when the script is aborted
-def end_read(signal, frame):
-    global continue_reading
-    print("Ctrl+C captured, ending read.")
-    continue_reading = False
-    GPIO.cleanup()
-
-
-# Hook the SIGINT
-signal.signal(signal.SIGINT, end_read)
-
-# Create an object of the class MFRC522
-MIFAREReader = MFRC522.Reader(0, 0, 22)
-
-# Welcome message
-print("Welcome to the RFID-Interface for SmartCoffee")
-print("Press Ctrl-C to stop.")
-
-while continue_reading:
-    # Scan for cards
-    (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
-
-    # If a card is found
-    if status == MIFAREReader.MI_OK:
-        print("Card detected")
-
-        # Get the UID of the card
-    (status, uid) = MIFAREReader.MFRC522_Anticoll()
-
-    # If we have the UID, continue
-    if status == MIFAREReader.MI_OK:
-        tassimo.make_coffee()
-        # Print UID
-        print("Making coffee for UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
-
-        # This is the default key for authentication
-        key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
-
-        # Select the scanned tag
-        MIFAREReader.MFRC522_SelectTag(uid)
-
-        # Authenticate
-        status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
-
-        # Check if authenticated
-        if status == MIFAREReader.MI_OK:
-            MIFAREReader.MFRC522_Read(8)
-            MIFAREReader.MFRC522_StopCrypto1()
-        else:
-            print("Authentication error")
+                id, text = reader.read()
+                print("Making coffee for %s" % id)
+                tassimo.make_coffee()
+finally:
+        GPIO.cleanup()
